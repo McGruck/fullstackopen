@@ -1,92 +1,65 @@
 import { useState } from 'react'
 
-const Button = ({onClick, text}) => {
-  return (
-    <button onClick={onClick}>{text}</button>
-  )
-}
-
-const StatisticsLine = ({label, value}) => {
-  return (
-    <tr>
-      <td>{label}</td>
-      <td>{value}</td>
-    </tr>
-  )
-}
-
-const Statistics = ({good, neutral, bad, all, average, positive}) => {
-  if (all === 0) {
-    return (
-      <div>No feedback given</div>
-    )
-  }
-  return (
-    <div>
-      <table>
-        <tbody>
-          <StatisticsLine label={"good"} value={good} />
-          <StatisticsLine label={"neutral"} value={neutral} />
-          <StatisticsLine label={"bad"} value={bad} />
-          <StatisticsLine label={"all"} value={all} />
-          <StatisticsLine label={"average"} value={average} />
-          <StatisticsLine label={"positive"} value={positive + "%"} />
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
 const App = () => {
-  const [good, setGood] = useState(0)
-  const [neutral, setNeutral] = useState(0)
-  const [bad, setBad] = useState(0)
-  const [all, setAll] = useState(0)
-  const [sum, setSum] = useState(0)
-  const [average, setAverage] = useState(0)
-  const [positive, setPositive] = useState(0)
+  const anecdotes = [
+    'If it hurts, do it more often.',
+    'Adding manpower to a late software project makes it later!',
+    'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
+    'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
+    'Premature optimization is the root of all evil.',
+    'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
+    'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
+    'The only way to go fast, is to go well.'
+  ]
+   
+  const [selected, setSelected] = useState(0)
+  const [votes, setVotes] = useState(new Uint8Array(anecdotes.length))
+  const [mostVotes, setMostVotes] = useState(0)
 
-  const handleGoodFeedback = () => {
-    const updatedGood = good + 1
-    setGood(updatedGood)
-    feedbackCalcs(1, updatedGood)
+  const getRandomInt = (max) => {
+    return Math.floor(Math.random() * max)
   }
 
-  const handleNeutralFeedback = () => {
-    setNeutral(neutral + 1)
-    feedbackCalcs(0)
+  const handleNext = () => {
+    const newSelected = getRandomInt(anecdotes.length)
+    setSelected(newSelected)
   }
 
-  const handleBadFeedback = () => {
-    setBad(bad + 1)
-    feedbackCalcs(-1)
+  const handleVote = () => {
+    const newVotes = [...votes]
+    newVotes[selected] += 1
+    setVotes(newVotes)
+    calculateMostVotes(newVotes)
   }
 
-  const feedbackCalcs = (value, updatedGood) => {
-    const updatedAll = all + 1
-    const updatedSum = sum + value
-    let goodCount
-    if (updatedGood) {
-      goodCount = updatedGood
-    } else {
-      goodCount = good
+  const calculateMostVotes = (newVotes) => {
+    if (newVotes.length === 0) {
+        return -1;
     }
-    setAll(updatedAll)
-    setSum(updatedSum)
-    setAverage(updatedSum / updatedAll)
-    setPositive(100 * (goodCount / updatedAll))
+
+    var max = newVotes[0];
+    var maxIndex = 0;
+
+    for (var i = 1; i < newVotes.length; i++) {
+        if (newVotes[i] > max) {
+            maxIndex = i;
+            max = newVotes[i];
+        }
+    }
+
+    setMostVotes(maxIndex)
   }
 
   return (
     <div>
-      <h1>give feedback</h1>
-      <div>
-        <Button onClick={handleGoodFeedback} text={"good"} />
-        <Button onClick={handleNeutralFeedback} text={"neutral"} />
-        <Button onClick={handleBadFeedback} text={"bad"} />
-      </div>
-      <h1>statistics</h1>
-      <Statistics good={good} neutral={neutral} bad={bad} all={all} positive={positive} average={average}/>
+      <h1>Anecdote of the day</h1>
+      <p>{anecdotes[selected]}</p>
+      <p>has {votes[selected]} votes</p>
+      <button onClick={handleVote}>vote</button>
+      <button onClick={handleNext}>next anecdote</button>
+      <h1>Anecdote with the most votes</h1>
+      <p>{anecdotes[mostVotes]}</p>
+      <p>has {votes[mostVotes]} votes</p>
     </div>
   )
 }
