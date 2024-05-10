@@ -1,7 +1,16 @@
 const express = require('express')
+var morgan = require('morgan')
 const app = express()
 
+morgan.token('body', function getBody (req) {
+  if (req.body) {
+    return JSON.stringify(req.body)
+  }
+})
+
+
 app.use(express.json())
+app.use(morgan(`:method :url :status :response-time ms :body`))
 
 let persons = [
   { 
@@ -25,6 +34,8 @@ let persons = [
     number: "39-23-6423122"
   }
 ]
+
+
 
 app.get('/info', (request, response) => {
   var date = new Date()
@@ -84,6 +95,12 @@ app.post('/api/persons', (request, response) => {
   persons = persons.concat(newPerson)
   response.status(204).end()
 })
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint'})
+}
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT, () => {
