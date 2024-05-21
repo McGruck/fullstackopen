@@ -99,9 +99,9 @@ app.post('/api/persons', (request, response) => {
   response.status(204).end()
 })
 
-const unknownEndpoint = (request, response) => {
+/*const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint'})
-}
+}*/
 
 app.use(unknownEndpoint)
 
